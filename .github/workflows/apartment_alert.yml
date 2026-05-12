@@ -1,0 +1,38 @@
+name: Apartment Alert
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 minutes
+  workflow_dispatch:           # allow manual trigger from GitHub UI
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # needed to commit seen_listings.json back
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        env:
+          GMAIL_ADDRESS:      ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python scraper.py
+
+      - name: Commit updated seen listings
+        run: |
+          git config user.name  "apartment-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add seen_listings.json
+          git diff --staged --quiet || git commit -m "chore: update seen listings [skip ci]"
+          git push
