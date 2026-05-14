@@ -150,11 +150,41 @@ def fetch_listings():
         page = context.new_page()
         print(f"Fetching {CL_URL}")
         page.goto(CL_URL, wait_until="domcontentloaded", timeout=30000)
-        time.sleep(2)
+        time.sleep(3)
 
-        # Each listing is an <li class="cl-search-result">
-        items = page.query_selector_all("li.cl-search-result")
-        print(f"  Found {len(items)} listing elements")
+        # Debug: print a snippet of the HTML so we can see the real structure
+        html = page.content()
+        print(f"  Page length: {len(html)} chars")
+        # Find first <li or first result-like element
+        import re as _re
+        snippet_match = _re.search(r'<li[\s][^>]{0,200}>', html)
+        print(f"  First <li>: {snippet_match.group(0) if snippet_match else 'none found'}")
+        # try to find any class with 'result' in it
+        result_classes = _re.findall(r'class="([^"]*result[^"]*)"', html)
+        print(f"  Result classes: {result_classes[:5]}")
+        # try gallery/listing patterns
+        for pattern in ["gallery-card", "cl-search-result", "result-row", "listing"]:
+            idx = html.find(pattern)
+            if idx > 0:
+                print(f"  Found '{pattern}' at {idx}: ...{html[idx:idx+200]}...")
+                break
+
+        # Try multiple selectors
+        selectors = [
+            "li.cl-search-result",
+            "li.gallery-card",
+            ".cl-search-result",
+            "li[data-pid]",
+            ".result-row",
+        ]
+        items = []
+        for sel in selectors:
+            items = page.query_selector_all(sel)
+            print(f"  Selector '{sel}': {len(items)} items")
+            if items:
+                break
+
+        print(f"  Using {len(items)} listing elements")
 
         for item in items:
             try:
