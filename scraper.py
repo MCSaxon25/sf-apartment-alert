@@ -3,7 +3,7 @@ import os
 import re
 import smtplib
 import time
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -11,12 +11,23 @@ from playwright.sync_api import sync_playwright
 
 # ── Config ────────────────────────────────────────────────────────────────────
 SEEN_FILE        = "seen_listings.json"
+PENDING_FILE     = "pending_listings.json"
 RECIPIENT        = "mcsaxon25@gmail.com"
 SENDER           = os.environ.get("GMAIL_ADDRESS")
 APP_PASSWORD     = os.environ.get("GMAIL_APP_PASSWORD")
 MOVE_IN_CUTOFF   = date(2026, 8, 15)
 PRICE_HARD_MAX   = 5000
 MIN_SCORE        = 5
+
+PT = timezone(timedelta(hours=-7))  # PDT (UTC-7)
+
+def pt_now() -> datetime:
+    return datetime.now(PT)
+
+def is_daytime() -> bool:
+    """Return True if current PT time is between 7am and 10pm."""
+    h = pt_now().hour
+    return 7 <= h < 22
 
 CL_URL = (
     "https://sfbay.craigslist.org/search/sfc/apa"
@@ -223,7 +234,7 @@ def fetch_listings():
     return listings
 
 # ── Email ─────────────────────────────────────────────────────────────────────
-def send_email(matches: list):
+def send_email(matches: list, subject_prefix: str = "🏠"):
     rows = ""
     for m in matches:
         beds = m.get("beds")
@@ -242,7 +253,7 @@ def send_email(matches: list):
 
     html = f"""
     <html><body style="font-family:sans-serif;max-width:900px;margin:0 auto">
-      <h2 style="color:#333">🏠 {len(matches)} New SF Apartment{'s' if len(matches)>1 else ''}</h2>
+      <h2 style="color:#333">{subject_prefix} {len(matches)} SF Apartment{'s' if len(matches)>1 else ''}</h2>
       <table width="100%" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee">
         <thead>
           <tr style="background:#f5f5f5">
@@ -258,7 +269,7 @@ def send_email(matches: list):
     </body></html>"""
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"🏠 {len(matches)} new SF apartment{'s' if len(matches)>1 else ''} found"
+    msg["Subject"] = f"{subject_prefix} {len(matches)} new SF apartment{'s' if len(matches)>1 else ''} found"
     msg["From"]    = SENDER
     msg["To"]      = RECIPIENT
     msg.attach(MIMEText(html, "html"))
@@ -268,8 +279,26 @@ def send_email(matches: list):
         s.sendmail(SENDER, RECIPIENT, msg.as_string())
     print(f"Email sent with {len(matches)} listings.")
 
+# ── Pending (overnight) helpers ───────────────────────────────────────────────
+def load_pending() -> list:
+    if os.path.exists(PENDING_FILE):
+        with open(PENDING_FILE) as f:
+            return json.load(f)
+    return []
+
+def save_pending(listings: list):
+    with open(PENDING_FILE, "w") as f:
+        json.dump(listings, f, indent=2)
+
+def clear_pending():
+    if os.path.exists(PENDING_FILE):
+        os.remove(PENDING_FILE)
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 def run():
+    now = pt_now()
+    print(f"Current PT time: {now.strftime('%I:%M %p')}")
+
     seen = load_seen()
     listings = fetch_listings()
     new_matches = []
@@ -305,11 +334,29 @@ def run():
 
     save_seen(seen)
 
-    if new_matches:
-        new_matches.sort(key=lambda x: x["score"], reverse=True)
-        send_email(new_matches)
+    if is_daytime():
+        # ── Daytime: send immediately ──────────────────────────────────────────
+        # First check if there's a leftover pending batch from overnight
+        pending = load_pending()
+        if pending:
+            print(f"Sending overnight summary ({len(pending)} listings)...")
+            send_email(pending, subject_prefix="🌙 Overnight summary")
+            clear_pending()
+
+        if new_matches:
+            new_matches.sort(key=lambda x: x["score"], reverse=True)
+            send_email(new_matches)
+        else:
+            print("No new matching listings.")
     else:
-        print("No new matching listings.")
+        # ── Overnight: accumulate into pending file ────────────────────────────
+        if new_matches:
+            pending = load_pending()
+            pending.extend(new_matches)
+            save_pending(pending)
+            print(f"Overnight: saved {len(new_matches)} listings to pending (total pending: {len(pending)})")
+        else:
+            print("Overnight: no new matches, nothing added to pending.")
 
 if __name__ == "__main__":
     run()
