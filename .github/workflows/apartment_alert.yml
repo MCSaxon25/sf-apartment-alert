@@ -2,14 +2,14 @@ name: Apartment Alert
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # every 30 minutes
-  workflow_dispatch:           # allow manual trigger from GitHub UI
+    - cron: "0 */3 * * *"   # every 3 hours
+  workflow_dispatch:          # allow manual trigger from GitHub UI
 
 jobs:
   check:
     runs-on: ubuntu-latest
     permissions:
-      contents: write          # needed to commit seen_listings.json back
+      contents: write
 
     steps:
       - name: Checkout repo
@@ -22,6 +22,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
 
       - name: Run scraper
         env:
