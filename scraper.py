@@ -1,26 +1,29 @@
-import feedparser
 import json
 import os
-import smtplib
 import re
+import smtplib
+import time
 from datetime import date
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+from playwright.sync_api import sync_playwright
 
 # ── Config ────────────────────────────────────────────────────────────────────
-SEEN_FILE = "seen_listings.json"
-RECIPIENT = "mcsaxon25@gmail.com"
-SENDER = os.environ.get("GMAIL_ADDRESS")
-APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
-MOVE_IN_CUTOFF = date(2026, 8, 15)
-PRICE_HARD_MAX = 5000
+SEEN_FILE        = "seen_listings.json"
+RECIPIENT        = "mcsaxon25@gmail.com"
+SENDER           = os.environ.get("GMAIL_ADDRESS")
+APP_PASSWORD     = os.environ.get("GMAIL_APP_PASSWORD")
+MOVE_IN_CUTOFF   = date(2026, 8, 15)
+PRICE_HARD_MAX   = 5000
+MIN_SCORE        = 5
 
-# Craigslist SF apartments RSS — pre-filtered to ≤$5k, min 1BR
-CL_URLS = [
-    "https://sfbay.craigslist.org/search/sfc/apa?format=rss&max_price=5000&min_bedrooms=1",
-]
+CL_URL = (
+    "https://sfbay.craigslist.org/search/sfc/apa"
+    "?max_price=5000&min_bedrooms=1&availabilityMode=0&sale_date=all+dates"
+)
 
-# ── Scoring tables ────────────────────────────────────────────────────────────
+# ── Scoring ───────────────────────────────────────────────────────────────────
 NEIGHBORHOOD_SCORES = {
     "inner richmond":        3,
     "pacific heights":       3,
@@ -46,236 +49,226 @@ def save_seen(seen: set):
     with open(SEEN_FILE, "w") as f:
         json.dump(sorted(seen), f, indent=2)
 
-def extract_price(text: str) -> int | None:
+def extract_price(text: str):
     for m in re.findall(r'\$[\d,]+', text):
-        price = int(m.replace("$", "").replace(",", ""))
-        if 500 < price < 15_000:
-            return price
+        p = int(m.replace("$", "").replace(",", ""))
+        if 500 < p < 15_000:
+            return p
     return None
 
-def extract_bedrooms(text: str) -> int | None:
+def extract_bedrooms(text: str):
     t = text.lower()
     if re.search(r'\b(studio|efficiency)\b', t):
         return 0
-    m = re.search(r'(\d)\s*(?:br|bd|bed|bedroom)', t)
+    m = re.search(r'(\d)\s*(?:br|bed|bedroom)', t)
     if m:
         return int(m.group(1))
-    for word, n in [("one", 1), ("two", 2), ("three", 3), ("four", 4)]:
-        if re.search(rf'\b{word}\s+bed', t):
-            return n
     return None
 
-def detect_neighborhood(text: str):
+def is_move_in_too_late(text: str) -> bool:
     t = text.lower()
-    # Sort by score desc so higher-priority names match first
-    for name, score in sorted(NEIGHBORHOOD_SCORES.items(), key=lambda x: -x[1]):
-        if name in t:
-            return name, score
-    return None, 0
-
-def is_furnished(text: str) -> bool:
-    t = text.lower()
-    return bool(re.search(r'\bfurnished\b', t)) and not bool(re.search(r'\bunfurnished\b', t))
-
-def extract_move_in(text: str) -> date | None:
-    MONTHS = {
-        'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,
-        'july':7,'august':8,'september':9,'october':10,'november':11,'december':12,
-        'jan':1,'feb':2,'mar':3,'apr':4,'jun':6,'jul':7,'aug':8,
-        'sep':9,'oct':10,'nov':11,'dec':12,
+    months = {
+        "january":1,"february":2,"march":3,"april":4,"may":5,"june":6,
+        "july":7,"august":8,"september":9,"october":10,"november":11,"december":12,
+        "jan":1,"feb":2,"mar":3,"apr":4,"jun":6,"jul":7,"aug":8,
+        "sep":9,"oct":10,"nov":11,"dec":12,
     }
-    t = text.lower()
-
-    # MM/DD or MM/DD/YY(YY)
-    m = re.search(
-        r'(?:available|avail|move.in|avail from)[:\s]+(\d{1,2})[/\-](\d{1,2})(?:[/\-](\d{2,4}))?', t
-    )
-    if m:
-        month, day = int(m.group(1)), int(m.group(2))
-        year = int(m.group(3)) if m.group(3) else 2026
-        if year < 100: year += 2000
-        try:
-            return date(year, month, day)
-        except ValueError:
-            pass
-
-    # "available June 1" / "available August"
-    for name, num in MONTHS.items():
-        pat = (
-            rf'(?:available|avail|move.in)[:\s]+'
-            rf'(?:(?:the\s+)?(\d{{1,2}})\s+(?:of\s+)?)?{name}'
-            rf'(?:[^\d]*(\d{{1,2}}))?(?:,?\s+(\d{{4}}))?'
-        )
-        m = re.search(pat, t)
+    for month_name, month_num in months.items():
+        pattern = rf'{month_name}\s+(\d{{1,2}})'
+        m = re.search(pattern, t)
         if m:
-            day = int(m.group(1) or m.group(2) or 1)
-            year = int(m.group(3)) if m.group(3) else 2026
+            day = int(m.group(1))
             try:
-                return date(year, num, day)
+                move_in = date(2026, month_num, day)
+                if move_in >= MOVE_IN_CUTOFF:
+                    return True
             except ValueError:
                 pass
-    return None
+    return False
 
-# ── Scoring ───────────────────────────────────────────────────────────────────
-def score_listing(title: str, body: str, price: int | None):
+def score_listing(title: str, body: str, price):
+    text = (title + " " + body).lower()
     score = 0
     reasons = []
-    text = f"{title} {body}".lower()
 
     # Neighborhood
-    nbr_name, nbr_pts = detect_neighborhood(text)
-    if nbr_name:
-        score += nbr_pts
-        reasons.append(f"{nbr_name.title()}: +{nbr_pts}")
+    hood_score = 0
+    for hood, pts in NEIGHBORHOOD_SCORES.items():
+        if hood in text:
+            hood_score = max(hood_score, pts)
+    if hood_score == 0:
+        return 0, ["not in target neighborhood"], None
+    score += hood_score
+    reasons.append(f"neighborhood +{hood_score}")
 
     # Bedrooms
-    beds = extract_bedrooms(text)
-    if beds and beds >= 2:
-        score += 3;   reasons.append(f"{beds}BR: +3")
+    beds = extract_bedrooms(title + " " + body)
+    if beds == 0:
+        return 0, ["studio excluded"], beds
+    elif beds == 2:
+        score += 3; reasons.append("2BR +3")
+    elif beds and beds >= 3:
+        score += 2.5; reasons.append("3BR+ +2.5")
     elif beds == 1:
-        score += 0.8; reasons.append("1BR: +0.8")
+        score += 0.8; reasons.append("1BR +0.8")
 
     # Price
-    if price:
-        if price <= 4500:
-            score += 2.5; reasons.append(f"${price:,} (≤$4.5k): +2.5")
-        else:
-            score += 1.5; reasons.append(f"${price:,} ($4.5k–$5k): +1.5")
+    if price is None:
+        score += 1; reasons.append("price unknown +1")
+    elif price <= 4500:
+        score += 2.5; reasons.append("≤$4500 +2.5")
+    elif price <= 5000:
+        score += 1.5; reasons.append("≤$5000 +1.5")
 
     # Amenities
-    if re.search(r'w/d in unit|washer.dryer in unit|in.unit laundry|in unit w/d', text):
-        score += 2;   reasons.append("W/D in-unit: +2")
-    elif re.search(r'\bw/d\b|washer.dryer|laundry in build|on.site laundry|shared laundry', text):
-        score += 0.8; reasons.append("W/D in building: +0.8")
-
-    if re.search(r'\bparking\b|garage|parking included|\b1 car\b|one car', text):
-        score += 1.5; reasons.append("Parking: +1.5")
-
+    if re.search(r'\bw[/\-]?d\b|washer.{0,10}dryer|in.unit laundry', text):
+        if re.search(r'in.unit|in unit', text):
+            score += 2; reasons.append("W/D in unit +2")
+        else:
+            score += 0.8; reasons.append("W/D in building +0.8")
+    if re.search(r'\bparking\b|\bgarage\b|\bcarport\b', text):
+        score += 1.5; reasons.append("parking +1.5")
+    if re.search(r'\bpatio\b|\bdeck\b|\byard\b|\boutdoor\b|\bbalcony\b', text):
+        score += 1.2; reasons.append("outdoor space +1.2")
     if re.search(r'\bdishwasher\b', text):
-        score += 1;   reasons.append("Dishwasher: +1")
+        score += 1; reasons.append("dishwasher +1")
 
-    if re.search(r'\bpatio\b|\bbalcony\b|\boutdoor space\b|\byard\b|\bdeck\b', text):
-        score += 1.2; reasons.append("Outdoor space: +1.2")
+    return round(score, 1), reasons, beds
 
-    return score, reasons, beds
+# ── Scraping with Playwright ──────────────────────────────────────────────────
+def fetch_listings():
+    listings = []
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            )
+        )
+        page = context.new_page()
+        print(f"Fetching {CL_URL}")
+        page.goto(CL_URL, wait_until="domcontentloaded", timeout=30000)
+        time.sleep(2)
+
+        # Each listing is an <li class="cl-search-result">
+        items = page.query_selector_all("li.cl-search-result")
+        print(f"  Found {len(items)} listing elements")
+
+        for item in items:
+            try:
+                link_el = item.query_selector("a.cl-app-anchor")
+                title_el = item.query_selector(".label")
+                price_el = item.query_selector(".priceinfo")
+                hood_el  = item.query_selector(".meta")
+
+                if not link_el or not title_el:
+                    continue
+
+                url   = link_el.get_attribute("href") or ""
+                title = title_el.inner_text().strip()
+                price_text = price_el.inner_text().strip() if price_el else ""
+                hood_text  = hood_el.inner_text().strip()  if hood_el  else ""
+
+                listing_id = url.split("/")[-1].replace(".html", "")
+
+                listings.append({
+                    "id":    listing_id,
+                    "url":   url,
+                    "title": title,
+                    "price": price_text,
+                    "meta":  hood_text,
+                    "body":  "",
+                })
+            except Exception as e:
+                print(f"  Error parsing item: {e}")
+
+        browser.close()
+    return listings
 
 # ── Email ─────────────────────────────────────────────────────────────────────
-def format_email(listings: list) -> str:
+def send_email(matches: list):
     rows = ""
-    for apt in sorted(listings, key=lambda x: -x["score"]):
-        beds_label = f"{apt['beds']}BR" if apt['beds'] else "?"
-        price_label = f"${apt['price']:,}" if apt['price'] else "?"
-        why = " · ".join(apt["reasons"])
+    for m in matches:
         rows += f"""
         <tr>
-          <td style="padding:14px 10px; border-bottom:1px solid #eee;">
-            <a href="{apt['url']}" style="font-weight:600; color:#1a56db; text-decoration:none;">
-              {apt['title']}
-            </a><br>
-            <span style="font-size:12px; color:#6b7280;">{why}</span>
+          <td style="padding:12px;border-bottom:1px solid #eee;">
+            <a href="{m['url']}" style="font-weight:bold;color:#1a0dab;text-decoration:none;">{m['title']}</a><br>
+            <span style="color:#888;font-size:13px">{m['meta']}</span>
           </td>
-          <td style="padding:14px 10px; border-bottom:1px solid #eee; text-align:center; white-space:nowrap;">
-            {price_label}
-          </td>
-          <td style="padding:14px 10px; border-bottom:1px solid #eee; text-align:center;">
-            {beds_label}
-          </td>
-          <td style="padding:14px 10px; border-bottom:1px solid #eee; text-align:center; font-weight:700; color:#1a56db;">
-            {apt['score']}
-          </td>
+          <td style="padding:12px;border-bottom:1px solid #eee;white-space:nowrap">{m['price']}</td>
+          <td style="padding:12px;border-bottom:1px solid #eee;">{m['score']}</td>
+          <td style="padding:12px;border-bottom:1px solid #eee;font-size:12px;color:#555">{', '.join(m['reasons'])}</td>
         </tr>"""
 
-    return f"""
-    <html><body style="font-family: sans-serif; max-width:700px; margin:auto; color:#111;">
-      <h2 style="margin-bottom:4px;">🏠 {len(listings)} new SF apartment match{"es" if len(listings)!=1 else ""}</h2>
-      <p style="color:#6b7280; margin-top:0;">Sorted by score · Hard filters: ≤$5k, unfurnished, available before Aug 15</p>
-      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+    html = f"""
+    <html><body style="font-family:sans-serif;max-width:900px;margin:0 auto">
+      <h2 style="color:#333">🏠 {len(matches)} New SF Apartment{'s' if len(matches)>1 else ''}</h2>
+      <table width="100%" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee">
         <thead>
-          <tr style="background:#f3f4f6; text-align:left;">
-            <th style="padding:10px;">Listing</th>
-            <th style="padding:10px; text-align:center;">Price</th>
-            <th style="padding:10px; text-align:center;">Beds</th>
-            <th style="padding:10px; text-align:center;">Score</th>
+          <tr style="background:#f5f5f5">
+            <th style="padding:10px;text-align:left">Listing</th>
+            <th style="padding:10px;text-align:left">Price</th>
+            <th style="padding:10px;text-align:left">Score</th>
+            <th style="padding:10px;text-align:left">Why</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
       </table>
-      <p style="font-size:12px; color:#9ca3af; margin-top:20px;">
-        Sent by your SF Apartment Alert bot · 
-        <a href="https://github.com" style="color:#9ca3af;">View repo</a>
-      </p>
     </body></html>"""
 
-def send_email(listings: list):
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"🏠 {len(listings)} new SF apartment match{'es' if len(listings)!=1 else ''}"
-    msg["From"] = SENDER
-    msg["To"] = RECIPIENT
-    msg.attach(MIMEText(format_email(listings), "html"))
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(SENDER, APP_PASSWORD)
-        server.sendmail(SENDER, RECIPIENT, msg.as_string())
-    print(f"✅ Emailed {len(listings)} listing(s) to {RECIPIENT}")
+    msg["Subject"] = f"🏠 {len(matches)} new SF apartment{'s' if len(matches)>1 else ''} found"
+    msg["From"]    = SENDER
+    msg["To"]      = RECIPIENT
+    msg.attach(MIMEText(html, "html"))
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
+        s.login(SENDER, APP_PASSWORD)
+        s.sendmail(SENDER, RECIPIENT, msg.as_string())
+    print(f"Email sent with {len(matches)} listings.")
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def run():
     seen = load_seen()
-    new_listings = []
+    listings = fetch_listings()
+    new_matches = []
 
-    for url in CL_URLS:
-        print(f"Fetching {url}")
-        feed = feedparser.parse(url)
-        print(f"  {len(feed.entries)} entries")
+    for item in listings:
+        lid = item["id"]
+        if lid in seen:
+            continue
+        seen.add(lid)
 
-        for entry in feed.entries:
-            listing_id = entry.get("id", entry.link)
-            if listing_id in seen:
-                continue
+        title = item["title"]
+        body  = item["meta"]
+        price = extract_price(item["price"] + " " + title)
 
-            title = entry.get("title", "")
-            body  = entry.get("summary", "")
-            full  = f"{title} {body}"
+        # Hard filters
+        if price and price > PRICE_HARD_MAX:
+            print(f"  SKIP (price) {title[:60]}")
+            continue
+        if re.search(r'\bfurnished\b', (title + body).lower()) and \
+           not re.search(r'\bunfurnished\b', (title + body).lower()):
+            print(f"  SKIP (furnished) {title[:60]}")
+            continue
+        if is_move_in_too_late(title + " " + body):
+            print(f"  SKIP (move-in too late) {title[:60]}")
+            continue
 
-            # ── Hard filters ──────────────────────────────────────────────────
-            price = extract_price(full) or extract_price(title)
-            if price and price > PRICE_HARD_MAX:
-                seen.add(listing_id); continue
+        score, reasons, beds = score_listing(title, body, price)
+        flag = "✅ MATCH" if score >= MIN_SCORE else "❌ skip "
+        print(f"  {flag}  score={score}  {title[:60]}")
 
-            if is_furnished(full):
-                seen.add(listing_id); continue
-
-            move_in = extract_move_in(full)
-            if move_in and move_in >= MOVE_IN_CUTOFF:
-                seen.add(listing_id); continue
-
-            nbr_name, _ = detect_neighborhood(full)
-            if not nbr_name:
-                seen.add(listing_id); continue
-
-            beds = extract_bedrooms(full)
-            if beds == 0:  # studios excluded
-                seen.add(listing_id); continue
-
-            # ── Score ─────────────────────────────────────────────────────────
-            score, reasons, beds = score_listing(title, body, price)
-
-            if score < 5:
-                seen.add(listing_id); continue
-
-            new_listings.append({
-                "title":   title,
-                "url":     entry.link,
-                "score":   score,
-                "price":   price,
-                "beds":    beds,
-                "reasons": reasons,
-            })
-            seen.add(listing_id)
+        if score >= MIN_SCORE:
+            new_matches.append({**item, "score": score, "reasons": reasons})
 
     save_seen(seen)
 
-    if new_listings:
-        send_email(new_listings)
+    if new_matches:
+        new_matches.sort(key=lambda x: x["score"], reverse=True)
+        send_email(new_matches)
     else:
         print("No new matching listings.")
 
