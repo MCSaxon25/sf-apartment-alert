@@ -30,8 +30,11 @@ NEIGHBORHOOD_SCORES = {
     "pac heights":           3,
     "lower pacific heights": 3,
     "lower pac heights":     3,
+    "presidio heights":      3,
+    "marina":                3,
     "nopa":                  2,
     "north of panhandle":    2,
+    "hayes valley":          2,
     "haight ashbury":        1,
     "haight-ashbury":        1,
     "upper haight":          1,
@@ -110,7 +113,7 @@ def score_listing(title: str, body: str, price):
     elif beds and beds >= 3:
         score += 2.5; reasons.append("3BR+ +2.5")
     elif beds == 1:
-        score += 0.8; reasons.append("1BR +0.8")
+        score += 2.5; reasons.append("1BR +2.5")
 
     # Price
     if price is None:
@@ -132,6 +135,8 @@ def score_listing(title: str, body: str, price):
         score += 1.2; reasons.append("outdoor space +1.2")
     if re.search(r'\bdishwasher\b', text):
         score += 1; reasons.append("dishwasher +1")
+    if re.search(r'\bpets ok\b|\bpet friendly\b|\bdogs ok\b|\bcats ok\b|\bpets welcome\b|\bpets allowed\b', text):
+        score += 1.5; reasons.append("pets ok +1.5")
 
     return round(score, 1), reasons, beds
 
@@ -221,6 +226,8 @@ def fetch_listings():
 def send_email(matches: list):
     rows = ""
     for m in matches:
+        beds = m.get("beds")
+        beds_label = f"{beds}BR" if beds is not None else "?"
         rows += f"""
         <tr>
           <td style="padding:12px;border-bottom:1px solid #eee;">
@@ -228,6 +235,7 @@ def send_email(matches: list):
             <span style="color:#888;font-size:13px">{m['meta']}</span>
           </td>
           <td style="padding:12px;border-bottom:1px solid #eee;white-space:nowrap">{m['price']}</td>
+          <td style="padding:12px;border-bottom:1px solid #eee;white-space:nowrap">{beds_label}</td>
           <td style="padding:12px;border-bottom:1px solid #eee;">{m['score']}</td>
           <td style="padding:12px;border-bottom:1px solid #eee;font-size:12px;color:#555">{', '.join(m['reasons'])}</td>
         </tr>"""
@@ -240,6 +248,7 @@ def send_email(matches: list):
           <tr style="background:#f5f5f5">
             <th style="padding:10px;text-align:left">Listing</th>
             <th style="padding:10px;text-align:left">Price</th>
+            <th style="padding:10px;text-align:left">Beds</th>
             <th style="padding:10px;text-align:left">Score</th>
             <th style="padding:10px;text-align:left">Why</th>
           </tr>
@@ -292,7 +301,7 @@ def run():
         print(f"  {flag}  score={score}  {title[:60]}")
 
         if score >= MIN_SCORE:
-            new_matches.append({**item, "score": score, "reasons": reasons})
+            new_matches.append({**item, "score": score, "reasons": reasons, "beds": beds})
 
     save_seen(seen)
 
