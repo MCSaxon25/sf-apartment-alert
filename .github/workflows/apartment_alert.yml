@@ -36,6 +36,6 @@ jobs:
         run: |
           git config user.name  "apartment-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add seen_listings.json
-          git diff --staged --quiet || git commit -m "chore: update seen listings [skip ci]"
+          git add seen_listings.json pending_listings.json || true
+          git diff --staged --quiet || git commit -m "chore: update listings cache [skip ci]"
           git push
