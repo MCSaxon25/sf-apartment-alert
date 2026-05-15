@@ -19,15 +19,13 @@ MOVE_IN_CUTOFF   = date(2026, 8, 15)
 PRICE_HARD_MAX   = 5000
 MIN_SCORE        = 5
 
-PT = timezone(timedelta(hours=-7))  # PDT (UTC-7)
-
-def pt_now() -> datetime:
-    return datetime.now(PT)
-
 def is_daytime() -> bool:
-    """Return True if current PT time is between 7am and 10pm."""
-    h = pt_now().hour
-    return 7 <= h < 22
+    """Return True if current PT time is between 7am and 10pm.
+    PDT = UTC-7, so 7am PT = 14:00 UTC, 10pm PT = 05:00 UTC next day.
+    Daytime in UTC: hour >= 14 OR hour < 5
+    """
+    h = datetime.now(timezone.utc).hour
+    return h >= 14 or h < 5
 
 CL_URL = (
     "https://sfbay.craigslist.org/search/sfc/apa"
@@ -296,8 +294,9 @@ def clear_pending():
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def run():
-    now = pt_now()
-    print(f"Current PT time: {now.strftime('%I:%M %p')}")
+    now_utc = datetime.now(timezone.utc)
+    now_pt = now_utc - timedelta(hours=7)
+    print(f"UTC: {now_utc.strftime('%H:%M')} | PT: {now_pt.strftime('%I:%M %p')} | daytime={is_daytime()}")
 
     seen = load_seen()
     listings = fetch_listings()
