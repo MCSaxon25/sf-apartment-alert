@@ -385,5 +385,51 @@
       "\u2264$5000 +1.5"
     ],
     "beds": 1
+  },
+  {
+    "id": "7934437241",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-fantastic-marina-district/7934437241.html",
+    "title": "A Fantastic Marina District",
+    "price": "$4,000",
+    "meta": "<1hr ago\n1br900ft2\nMarina District",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934437232",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-elegant-spacious-junior/7934437232.html",
+    "title": "Elegant, spacious Junior One bedroom",
+    "price": "$3,500",
+    "meta": "1h ago\n1br790ft2\nPacific Heights",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7932613609",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-spacious-bed-bath/7932613609.html",
+    "title": "Spacious 2-bed 1-bath apartment. Bright and quiet. Parking available.",
+    "price": "$4,995",
+    "meta": "3h ago\n2br\npacific heights",
+    "body": "",
+    "score": 9.0,
+    "reasons": [
+      "neighborhood +3",
+      "2BR +3",
+      "\u2264$5000 +1.5",
+      "parking +1.5"
+    ],
+    "beds": 2
   }
 ]
