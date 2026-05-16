@@ -350,5 +350,50 @@
       "\u2264$4500 +2.5"
     ],
     "beds": 1
+  },
+  {
+    "id": "7934675772",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-top-floor-two-bedroom/7934675772.html",
+    "title": "Top Floor two-bedroom Edwardian Flat in Hayes Valley",
+    "price": "$1,100",
+    "meta": "<1hr ago\n2br\nSan Francisco, CA",
+    "body": "",
+    "score": 7.5,
+    "reasons": [
+      "neighborhood +2",
+      "2BR +3",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 2
+  },
+  {
+    "id": "7934670023",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-beautiful-bedroom/7934670023.html",
+    "title": "Beautiful 1-Bedroom Apartment ~ Hayes Valley!!",
+    "price": "$2,036",
+    "meta": "2h ago\n1br\nSan Francisco, CA",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934667906",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-1br-in-hayes-valley/7934667906.html",
+    "title": "1BR in Hayes Valley \u2013 Walkable Central Location",
+    "price": "$2,406",
+    "meta": "2h ago\n1br\nSan Francisco, CA",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
   }
 ]
