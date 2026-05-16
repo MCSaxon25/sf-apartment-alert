@@ -214,5 +214,80 @@
       "\u2264$5000 +1.5"
     ],
     "beds": 1
+  },
+  {
+    "id": "7934655743",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-beautifully-appointed/7934655743.html",
+    "title": "Beautifully appointed 1 bedroom/1 bathroom Pacific Heights condo with",
+    "price": "$2,900",
+    "meta": "<1hr ago\n1br820ft2\nSan Francisco",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934655732",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-at-the-intersection-of/7934655732.html",
+    "title": "At the intersection of Cow Hollow and the Marina this free-standing ho",
+    "price": "$2,900",
+    "meta": "<1hr ago\n1br642ft2\nSan Francisco",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934656667",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-inner-richmond-1bedroom/7934656667.html",
+    "title": "**Inner Richmond 1Bedroom Condominium**",
+    "price": "$2,013",
+    "meta": "1h ago\n1br\nSan Francisco, CA",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934655148",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-spacious-and-quiet/7934655148.html",
+    "title": "Spacious and Quiet 1-Bedroom in the Heart of Inner Richmond!",
+    "price": "$1,000",
+    "meta": "2h ago\n1br\nSan Francisco, CA",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934654463",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-marina-district-best/7934654463.html",
+    "title": "Marina District Best 1 bedroom Apartment",
+    "price": "$2,201",
+    "meta": "2h ago\n1br\nSan Francisco, CA",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
   }
 ]
