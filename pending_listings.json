@@ -289,5 +289,66 @@
       "\u2264$4500 +2.5"
     ],
     "beds": 1
+  },
+  {
+    "id": "7934663861",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-marina-district-newly/7934663861.html",
+    "title": "*Marina District* newly renovated 1BR/1BA private unit with parking",
+    "price": "$950",
+    "meta": "<1hr ago\n1br640ft2\n269 Avila St, San Francisco, CA",
+    "body": "",
+    "score": 9.5,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5",
+      "parking +1.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934662587",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-top-floor-hayes-valley/7934662587.html",
+    "title": "Top-Floor Hayes Valley Apartment with Soaring Ceilings & Natural Light",
+    "price": "$1,525",
+    "meta": "<1hr ago\n1br500ft2\nSan Francisco",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934663408",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-cozy-bedroom-apartment/7934663408.html",
+    "title": "Cozy 2 Bedroom Apartment With Hardwood Floors",
+    "price": "$980",
+    "meta": "<1hr ago\n2br\nHaight Ashbury",
+    "body": "",
+    "score": 6.5,
+    "reasons": [
+      "neighborhood +1",
+      "2BR +3",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 2
+  },
+  {
+    "id": "7934660614",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-welcome-to-sfs-most/7934660614.html",
+    "title": "Welcome to SF's most charming 1 bedroom unit, located in prime NOPA! S",
+    "price": "$2,900",
+    "meta": "1h ago\n1br765ft2\nSan Francisco",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
   }
 ]
