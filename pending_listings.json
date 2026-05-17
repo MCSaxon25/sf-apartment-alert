@@ -268,5 +268,50 @@
       "\u2264$4500 +2.5"
     ],
     "beds": 1
+  },
+  {
+    "id": "7934877499",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-bright-bedroom-apartment/7934877499.html",
+    "title": "Bright 1 Bedroom Apartment in Pacific Heights \u2013",
+    "price": "$955",
+    "meta": "2h ago\n1br\nPacific Heights",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934876973",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-renovated-bedroom-apt-in/7934876973.html",
+    "title": "Renovated 1 Bedroom, Apt- in Haight-Ashbury",
+    "price": "$910",
+    "meta": "2h ago\n1br\nHaight-Ashbury",
+    "body": "",
+    "score": 6.0,
+    "reasons": [
+      "neighborhood +1",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934876835",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-cozy-hayes-valley-bedroom/7934876835.html",
+    "title": "Cozy Hayes Valley 1 Bedroom Apartment \u2013",
+    "price": "$950",
+    "meta": "2h ago\n1br\nHayes Valley",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
   }
 ]
