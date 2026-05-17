@@ -133,5 +133,140 @@
       "\u2264$4500 +2.5"
     ],
     "beds": 1
+  },
+  {
+    "id": "7934870900",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-renovated-bedroom-apt-in/7934870900.html",
+    "title": "Renovated 1 Bedroom, Apt- in Haight-Ashbury",
+    "price": "$1,000",
+    "meta": "1h ago\n1br\nHaight-Ashbury",
+    "body": "",
+    "score": 6.0,
+    "reasons": [
+      "neighborhood +1",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934870163",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-modern-beautiful-home/7934870163.html",
+    "title": "Modern Beautiful Home 1 Month free in Hayes Valley",
+    "price": "$1,045",
+    "meta": "1h ago\n1br\nhayes valley",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934870012",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-renovated-bedroom-apt-in/7934870012.html",
+    "title": "Renovated 1 Bedroom, Apt- in Haight-Ashbury",
+    "price": "$910",
+    "meta": "2h ago\n1br\nHaight-Ashbury",
+    "body": "",
+    "score": 6.0,
+    "reasons": [
+      "neighborhood +1",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934869038",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-classic-inner-richmond/7934869038.html",
+    "title": "``Classic Inner Richmond District 1BR Apartment`",
+    "price": "$890",
+    "meta": "2h ago\n1br\nSan Francisco",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934868133",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-classic-inner-richmond/7934868133.html",
+    "title": "``Classic Inner Richmond District 2BR Apartment``",
+    "price": "$1,263",
+    "meta": "3h ago\n2br\nSan Francisco, CA",
+    "body": "",
+    "score": 8.5,
+    "reasons": [
+      "neighborhood +3",
+      "2BR +3",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 2
+  },
+  {
+    "id": "7934866731",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-br-ba-home-updated-marina/7934866731.html",
+    "title": "~2-BR/2-BA Home ~Updated Marina Home Close to Dining & Parks~",
+    "price": "$3,500",
+    "meta": "3h ago\n2br\nSan Francisco, CA",
+    "body": "",
+    "score": 8.5,
+    "reasons": [
+      "neighborhood +3",
+      "2BR +3",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 2
+  },
+  {
+    "id": "7934866093",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-modern-beautiful-home/7934866093.html",
+    "title": "Modern Beautiful Home 1 Month free in Hayes Valley",
+    "price": "$850",
+    "meta": "3h ago\n1br\nhayes valley",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934864959",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-charming-alamo-square/7934864959.html",
+    "title": "**Charming Alamo Square Retreat | 1 Bed, 1 Bath!!",
+    "price": "$1,575",
+    "meta": "4h ago\n1br\nalamo square / nopa",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7934863937",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-hayes-valley-1brs-1ba/7934863937.html",
+    "title": "Hayes Valley 1BRs/1BA Victorian Single Family Home!!",
+    "price": "$2,171",
+    "meta": "4h ago\n1br\nSan Francisco, CA",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
   }
 ]
