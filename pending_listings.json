@@ -356,5 +356,96 @@
       "\u2264$4500 +2.5"
     ],
     "beds": 1
+  },
+  {
+    "id": "7935069015",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-prime-inner-richmond/7935069015.html",
+    "title": "Prime Inner Richmond Bright Remodeled 1bd w/ W/D in Unit!",
+    "price": "$700",
+    "meta": "<1hr ago\n1br\nSan Francisco",
+    "body": "",
+    "score": 10.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5",
+      "W/D in unit +2"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7935058867",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-bedroom-apartment-cozy/7935058867.html",
+    "title": "1 Bedroom Apartment \u2013 Cozy Hayes Valley",
+    "price": "$940",
+    "meta": "4h ago\n1br\nhayes valley",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7935056131",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-1x1-available-now-month/7935056131.html",
+    "title": "1x1 Available Now! 1 Month Free!",
+    "price": "$850",
+    "meta": "5h ago\n1br\nhayes valley",
+    "body": "",
+    "score": 7.0,
+    "reasons": [
+      "neighborhood +2",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7935054173",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-call-now-book-look-tour/7935054173.html",
+    "title": "Call now & book! Look, Tour & Lease for a New Home!!! + 2 MONTHS FREE!",
+    "price": "$850",
+    "meta": "5h ago\n1br\ninner richmond",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7935053974",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-renovated-bedrooms/7935053974.html",
+    "title": "Renovated 1 & 1 Bedrooms Available For Move In! 1 Month Free! Call Now",
+    "price": "$850",
+    "meta": "5h ago\n1br\nmarina / cow hollow",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
+  },
+  {
+    "id": "7935053519",
+    "url": "https://sfbay.craigslist.org/sfc/apa/d/san-francisco-ideal-location-bright-top/7935053519.html",
+    "title": "Ideal Location, Bright Top Floor Apartment",
+    "price": "$850",
+    "meta": "6h ago\n1br\npacific heights",
+    "body": "",
+    "score": 8.0,
+    "reasons": [
+      "neighborhood +3",
+      "1BR +2.5",
+      "\u2264$4500 +2.5"
+    ],
+    "beds": 1
   }
 ]
